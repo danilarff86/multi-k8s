@@ -1,6 +1,7 @@
-FROM node:14.14.0-alpine
-WORKDIR "/app"
-COPY ./package.json ./
-RUN npm install
-COPY . .
-CMD ["npm", "run", "dev"]
+FROM golang:1.16
+WORKDIR /app
+COPY go.mod .
+COPY go.sum .
+COPY server.go .
+ENV CGO_ENABLED=0
+RUN go run server
