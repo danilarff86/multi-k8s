@@ -27,7 +27,7 @@ const (
 )
 
 type value struct {
-	number int `json:"number"`
+	Number int `json:"number"`
 }
 
 type httpService struct {
@@ -97,7 +97,7 @@ func (s *httpService) allHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		values = append(values, value{number: val})
+		values = append(values, value{Number: val})
 	}
 
 	err = json.NewEncoder(w).Encode(values)
