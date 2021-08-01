@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -124,16 +123,20 @@ func (s *httpService) currentHandler(w http.ResponseWriter, r *http.Request) {
 func (s *httpService) setHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("set handler")
 
-	data, err := io.ReadAll(r.Body)
+	var indexBody struct {
+		Val string `json:"index"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&indexBody)
 	if err != nil {
-		http.Error(w, "unable to retrieve body", http.StatusInternalServerError)
+		http.Error(w, "unable to parse body", http.StatusInternalServerError)
 		return
 	}
 	defer r.Body.Close()
 
-	index, err := strconv.Atoi(string(data))
+	index, err := strconv.Atoi(string(indexBody.Val))
 	if err != nil {
-		http.Error(w, fmt.Sprintf("unable to parse body: %s", data), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("unable to parse index value: %s", indexBody.Val), http.StatusBadRequest)
 		return
 	}
 
@@ -143,9 +146,9 @@ func (s *httpService) setHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	const nothingYet = "Nothing yet!"
-	err = s.redisClient.HSet(r.Context(), "values", data, nothingYet).Err()
+	err = s.redisClient.HSet(r.Context(), "values", indexBody.Val, nothingYet).Err()
 	if err != nil {
-		errMsg := fmt.Sprintf("unable to set value '%s' for key: '%s'", nothingYet, data)
+		errMsg := fmt.Sprintf("unable to set value '%s' for key: '%s'", nothingYet, indexBody.Val)
 		http.Error(w, errMsg, http.StatusInternalServerError)
 		return
 	}
