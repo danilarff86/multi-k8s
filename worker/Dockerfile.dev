@@ -4,3 +4,11 @@ COPY ./package.json ./
 RUN npm install
 COPY . .
 CMD ["npm", "run", "dev"]
+
+FROM golang:1.16
+WORKDIR /app
+COPY go.mod .
+COPY go.sum .
+COPY worker.go .
+ENV CGO_ENABLED=0
+RUN go run worker
