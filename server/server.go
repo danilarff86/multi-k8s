@@ -159,7 +159,7 @@ func (s *httpService) setHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.db.ExecContext(r.Context(), "INSERT INTO values(number) VALUES (?)", index)
+	_, err = s.db.ExecContext(r.Context(), "INSERT INTO values(number) VALUES ($1)", index)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("unable to save data to DB: %v", err), http.StatusInternalServerError)
 		return
